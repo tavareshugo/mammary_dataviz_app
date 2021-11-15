@@ -7,7 +7,7 @@ library(tidyverse)
 hybrid <- readRDS("../mammary_cellsort_rnaseq/results/DESeqDataSet/dds_gene_regular.rds")
 
 # zfp57 dataset
-zfp57 <- readRDS("../mammary_cellsort_zfp57/results/DESeqDataSet/dds_gene.rds")
+zfp57 <- readRDS("../mammary_cellsort_zfp57_rnaseq/results/diffexp/dds.rds")
 
 # simplify sample names
 colnames(hybrid) <- paste0("hybrid_", 1:ncol(hybrid))
@@ -69,7 +69,7 @@ zfp57_expr <- zfp57 %>%
 
 # Differential Expression -------------------------------------------------
 
-diffexp <- read_csv("../mammary_cellsort_zfp57/results/diffexp/diffexp_wt_vs_ko.csv")
+diffexp <- read_csv("../mammary_cellsort_zfp57_rnaseq/results/diffexp/diffexp_wt_vs_ko.csv")
 diffexp <- diffexp %>% 
   mutate(cell_type = case_when(cell_type == "endo" ~ "endothelial",
                                cell_type == "lumhi" ~ "luminal progenitors", 
