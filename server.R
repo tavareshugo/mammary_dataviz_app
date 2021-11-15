@@ -1,6 +1,7 @@
 library(shiny)
 library(tidyverse)
 library(patchwork)
+library(writexl)
 theme_set(theme_minimal(base_size = 16))
 
 
@@ -36,13 +37,15 @@ diffexp <- readRDS("data/zfp57_differential_expression.rds")
 
 # Define server logic required to draw a histogram
 server <- function(input, output) {
-  
+
+  # check if things should be plotted
   target_gene <- eventReactive(input$plot, {
     annot %>% 
       filter(gene == toupper(input$gene) | toupper(name) == toupper(input$gene)) %>% 
       distinct(gene)
   })
   
+  # check if gene is valid
   valid_target_gene <- function(x = target_gene()$gene){
     if(length(x) == 0){
       "No genes found."
@@ -53,9 +56,12 @@ server <- function(input, output) {
     } else {
       "Unknown error."
     }
-    
   }
   
+  
+  # Plots ----
+  
+  # zfp57 expression plots
   output$zfp57_expr <- renderPlot({
     validate(valid_target_gene())
     
@@ -87,6 +93,7 @@ server <- function(input, output) {
       plot_layout(ncol = 2, widths = c(1, 5))
   })
   
+  # expression in hybrid data
   output$imprint_expr <- renderPlot({
     validate(valid_target_gene())
     
@@ -105,6 +112,7 @@ server <- function(input, output) {
       theme(axis.text.x = element_text(angle = 45, hjust = 1))
   })
   
+  # isolde plots
   output$imprint_isolde <- renderPlot({
     validate(valid_target_gene())
     
@@ -122,4 +130,26 @@ server <- function(input, output) {
       scale_colour_manual(values = cell_colours) +
       theme(axis.text.x = element_text(angle = 45, hjust = 1))
   })
+  
+  # Download data ----
+  output$download_data <- downloadHandler(
+    filename = function() {
+      paste(target_gene()$gene, ".xlsx", sep = "")
+    },
+    content = function(file) {
+      out <- list(isolde = target_gene() %>% left_join(isolde, by = "gene"),
+                  hybrid_expression = target_gene() %>% 
+                    left_join(hybrid_expr) %>% 
+                    left_join(sample_info, by = "sample"),
+                  zfp57_expression = target_gene() %>% 
+                    left_join(zfp57_expr, by = "gene") %>% 
+                    left_join(sample_info, by = "sample"))
+      write_xlsx(out, file)
+    }
+  )
+  
+  observe({
+    shinyjs::toggleState("download_data", is.null(valid_target_gene()))
+  })
+  
 }

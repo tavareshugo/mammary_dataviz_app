@@ -13,13 +13,15 @@ ui <- fluidPage(
     titlePanel("Mammary Gland Transcriptomes"),
 
     fluidRow(
+        shinyjs::useShinyjs(),
         column(3, 
                textInput("gene",
-                         "Gene name:",
+                         "Gene name:", 
                          value = "Zfp57"),
                actionButton("plot", "Plot")
         ),
         column(9, 
+               downloadButton("download_data", "Download Data"),
                plotOutput("zfp57_expr"),
                plotOutput("imprint_expr"),
                plotOutput("imprint_isolde")
