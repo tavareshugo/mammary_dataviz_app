@@ -11,6 +11,8 @@ prep_data_for_download <- function(annot,
                                    stage,
                                    cell_type,
                                    genes = NULL){
+  setProgress(value = 0, message = "Preparing data...")
+  
   # requested genes to subset ----
   user_genes <- read.table(text = genes, 
                            header = FALSE, 
@@ -41,13 +43,14 @@ prep_data_for_download <- function(annot,
     gene_set <- intersect(gene_set, user_genes)
   }
   
-  
   # if(!is.null(genes)){
   #   genes <- str_squish(genes)
   #   annot <- annot %>% filter(gene %in% genes)
   # }
   
   # differential expression ----
+  setProgress(value = 0.2, message = "Preparing data...")
+  
   # filters
   diffexp_out <- diffexp %>% 
     # filter
@@ -66,6 +69,8 @@ prep_data_for_download <- function(annot,
     arrange(gene, cell_type, stage)
   
   # zfp57 expression ----
+  setProgress(value = 0.4, message = "Preparing data...")
+  
   zfp57_expr_out <- zfp57_expr %>% 
     filter(gene %in% gene_set) %>% 
     # right_join(diffexp_out %>% distinct(gene), by = "gene") %>% 
@@ -78,6 +83,8 @@ prep_data_for_download <- function(annot,
   
   
   # Hybrid expression ----
+  setProgress(value = 0.6, message = "Preparing data...")
+  
   hybrid_expr_out <- hybrid_expr %>% 
     filter(gene %in% gene_set) %>% 
     # right_join(diffexp_out %>% distinct(gene), by = "gene") %>% 
@@ -89,6 +96,8 @@ prep_data_for_download <- function(annot,
     arrange(gene, cell_type, stage)
   
   # Isolde test ----
+  setProgress(value = 0.8, message = "Preparing data...")
+  
   isolde_out <- isolde %>% 
     # retain only DEGs
     # right_join(diffexp_out %>% distinct(gene), by = "gene") %>% 
@@ -106,6 +115,8 @@ prep_data_for_download <- function(annot,
     arrange(gene, cell_type, stage)
   
   # return result ----
+  setProgress(value = 1, message = "Preparing data...")
+  
   list(`ZFP57 differential expression` = diffexp_out,
        `ZFP57 normalised expression` = zfp57_expr_out,
        `Hybrid normalised expression` = hybrid_expr_out,
