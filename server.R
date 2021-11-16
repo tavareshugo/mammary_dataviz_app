@@ -174,7 +174,13 @@ server <- function(input, output) {
       paste("mammary_gland_expression", ".xlsx", sep = "")
     },
     content = function(file) {
-      out <- prep_data_for_download(fdr_threshold = input$fdr_zfp57,
+      out <- prep_data_for_download(annot = annot,
+                                    diffexp = diffexp,
+                                    zfp57_expr = zfp57_expr,
+                                    isolde = isolde,
+                                    hybrid_expr = hybrid_expr,
+                                    sample_info = sample_info,
+                                    fdr_threshold = input$fdr_zfp57,
                                     fc_threshold = input$fc_threshold,
                                     ase_status = input$isolde_status,
                                     ase_threshold = input$ase_bias_threshold,
