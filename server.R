@@ -4,6 +4,8 @@ library(patchwork)
 library(writexl)
 theme_set(theme_minimal(base_size = 16))
 
+# source functions
+source("functions/prep_data_for_download.R")
 
 # colouring for plots
 stage_colours <- c("Nulliparous" = "grey",
@@ -37,7 +39,7 @@ diffexp <- readRDS("data/zfp57_differential_expression.rds")
 
 # Define server logic required to draw a histogram
 server <- function(input, output) {
-
+  
   # check if things should be plotted
   target_gene <- eventReactive(input$plot, {
     annot %>% 
@@ -61,12 +63,22 @@ server <- function(input, output) {
   
   # Plots ----
   
+  output$plotted_gene <- renderText({
+    validate(valid_target_gene())
+    plotted_gene <- target_gene() %>% 
+      left_join(annot, by = "gene") %>% 
+      group_by(gene) %>% 
+      summarise(name = paste(name, collapse = "/")) %>% ungroup()
+    paste0("Showing: ", plotted_gene$name, " (", plotted_gene$gene, ")")
+  })
+  
   # zfp57 expression plots
   output$zfp57_expr <- renderPlot({
     validate(valid_target_gene())
     
     p1 <- target_gene() %>% 
       left_join(diffexp, by = "gene") %>% 
+      mutate(padj = ifelse(is.na(padj), 1, padj)) %>% 
       ggplot(aes(stage, -log2FoldChange)) +
       geom_hline(yintercept = 0, linetype = 2) +
       geom_line(aes(group = cell_type, colour = cell_type)) +
@@ -132,24 +144,45 @@ server <- function(input, output) {
   })
   
   # Download data ----
+  # this is no longer generated (redundant with data panel)
+  # kept here for reference
+  # output$download_plot_data <- downloadHandler(
+  #   filename = function() {
+  #     paste(target_gene()$gene, ".xlsx", sep = "")
+  #   },
+  #   content = function(file) {
+  #     out <- list(isolde = target_gene() %>% left_join(isolde, by = "gene"),
+  #                 hybrid_expression = target_gene() %>% 
+  #                   left_join(hybrid_expr) %>% 
+  #                   left_join(sample_info, by = "sample"),
+  #                 zfp57_expression = target_gene() %>% 
+  #                   left_join(zfp57_expr, by = "gene") %>% 
+  #                   left_join(sample_info, by = "sample"))
+  #     write_xlsx(out, file)
+  #   }
+  # )
+  # 
+  # observe({
+  #   shinyjs::toggleState("download_plot_data", is.null(valid_target_gene()))
+  # })
+
+
+  # Data panel ----
+  
   output$download_data <- downloadHandler(
     filename = function() {
-      paste(target_gene()$gene, ".xlsx", sep = "")
+      paste("mammary_gland_expression", ".xlsx", sep = "")
     },
     content = function(file) {
-      out <- list(isolde = target_gene() %>% left_join(isolde, by = "gene"),
-                  hybrid_expression = target_gene() %>% 
-                    left_join(hybrid_expr) %>% 
-                    left_join(sample_info, by = "sample"),
-                  zfp57_expression = target_gene() %>% 
-                    left_join(zfp57_expr, by = "gene") %>% 
-                    left_join(sample_info, by = "sample"))
+      out <- prep_data_for_download(fdr_threshold = input$fdr_zfp57,
+                                    fc_threshold = input$fc_threshold,
+                                    ase_status = input$isolde_status,
+                                    ase_threshold = input$ase_bias_threshold,
+                                    stage = input$stage,
+                                    cell_type = input$cell_type,
+                                    genes = input$genes)
       write_xlsx(out, file)
     }
   )
-  
-  observe({
-    shinyjs::toggleState("download_data", is.null(valid_target_gene()))
-  })
-  
+
 }

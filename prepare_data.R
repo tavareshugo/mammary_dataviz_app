@@ -158,7 +158,9 @@ gene_annot <- getBM(attributes = c("ensembl_gene_id",
 
 gene_annot <- gene_annot %>% 
   pivot_longer(-ensembl_gene_id) %>% 
-  dplyr::select(gene = ensembl_gene_id, name = value)
+  dplyr::select(gene = ensembl_gene_id, name = value) %>% 
+  distinct() %>% 
+  filter(name != "")
   
 
 
