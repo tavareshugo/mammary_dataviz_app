@@ -10,7 +10,7 @@
 ui <- navbarPage(
     "Mammary Gland Transcriptomes", 
     tabPanel(
-        "Plots",
+        "Gene Plots",
         fluidPage(
             fluidRow(
                 shinyjs::useShinyjs(),
@@ -31,7 +31,7 @@ ui <- navbarPage(
         )
     ),
     tabPanel(
-        "Data",
+        "Data Download",
         fluidPage(
             fluidRow(
                 column(12, 
