@@ -2,6 +2,7 @@ library(shiny)
 library(tidyverse)
 library(patchwork)
 library(writexl)
+library(ggfortify)
 theme_set(theme_minimal(base_size = 16))
 
 # source functions
@@ -9,21 +10,21 @@ source("functions/prep_data_for_download.R")
 
 # colouring for plots
 stage_colours <- c("Nulliparous" = "grey",
-                   "Gestation D5.5" = "#a6cee3",
-                   "Gestation D9.5" = "#9ecae1",
-                   "gestation D14.5" = "#3182bd",
-                   "Lactation D5" = "#e5f5e0",
-                   "Lactation D10" = "#a1d99b",
-                   "Lactation D15" = "#31a354",
-                   "Involution D1" = "#fee6ce",
-                   "Involution D6" = "#fdae6b",
-                   "Involution D14" = "#e6550d",
-                   "Lactation D2" = "#a1d99b")
+                   "Gestation D5.5" = "#c6dbef",
+                   "Gestation D9.5" = "#6baed6",
+                   "Gestation D14.5" = "#08519c",
+                   "Lactation D2" = "#bae4b3",
+                   "Lactation D5" = "#74c476",
+                   "Lactation D10" = "#31a354",
+                   "Lactation D15" = "#006d2c",
+                   "Involution D1" = "#fdd0a2",
+                   "Involution D6" = "#fd8d3c",
+                   "Involution D14" = "#a63603")
 
 cell_colours <- RColorBrewer::brewer.pal(6, "Dark2")
 names(cell_colours) <- c("Adipocytes", "Basal", "Endothelial", "Luminal Differentiated", "Luminal Progenitors", "Stromal")
 
-cross_colours <- c("NC" = "black", "CB" = "brown")
+cross_colours <- c("BC" = "black", "CB" = "brown")
 
 genotype_colours <- c("WT" = "black", "KO" = "brown")
 
@@ -35,11 +36,14 @@ isolde <- readRDS("data/hybrid_isolde.rds")
 annot <- readRDS("data/gene_annotation.rds")
 sample_info <- readRDS("data/sample_info.rds")
 diffexp <- readRDS("data/zfp57_differential_expression.rds")
+zfp57_pca <- readRDS("data/zfp57_pca.rds")
+hybrid_pca <- readRDS("data/hybrid_pca.rds")
 
 
-# Define server logic required to draw a histogram
+# Define server logic 
 server <- function(input, output) {
   
+  # Plot panel -----
   # check if things should be plotted
   target_gene <- eventReactive(input$plot, {
     annot %>% 
@@ -60,9 +64,7 @@ server <- function(input, output) {
     }
   }
   
-  
-  # Plots ----
-  
+  # information about which gene is being plotted
   output$plotted_gene <- renderText({
     validate(valid_target_gene())
     plotted_gene <- target_gene() %>% 
@@ -143,29 +145,6 @@ server <- function(input, output) {
       theme(axis.text.x = element_text(angle = 45, hjust = 1))
   })
   
-  # Download data ----
-  # this is no longer generated (redundant with data panel)
-  # kept here for reference
-  # output$download_plot_data <- downloadHandler(
-  #   filename = function() {
-  #     paste(target_gene()$gene, ".xlsx", sep = "")
-  #   },
-  #   content = function(file) {
-  #     out <- list(isolde = target_gene() %>% left_join(isolde, by = "gene"),
-  #                 hybrid_expression = target_gene() %>% 
-  #                   left_join(hybrid_expr) %>% 
-  #                   left_join(sample_info, by = "sample"),
-  #                 zfp57_expression = target_gene() %>% 
-  #                   left_join(zfp57_expr, by = "gene") %>% 
-  #                   left_join(sample_info, by = "sample"))
-  #     write_xlsx(out, file)
-  #   }
-  # )
-  # 
-  # observe({
-  #   shinyjs::toggleState("download_plot_data", is.null(valid_target_gene()))
-  # })
-
 
   # Data panel ----
   
@@ -193,4 +172,42 @@ server <- function(input, output) {
     }
   )
 
+  # PCA panel ----
+  output$hybrid_pca <- renderPlot({
+    wrap_plots(
+      autoplot(hybrid_pca,
+               data = sample_info[match(rownames(hybrid_pca$x), sample_info$sample), ],
+               x = 1, y = 2, colour = "cell_type") +
+        scale_colour_manual(values = cell_colours, name = "Cell"),
+      autoplot(hybrid_pca,
+               data = sample_info[match(rownames(hybrid_pca$x), sample_info$sample), ],
+               x = 1, y = 2, colour = "stage") +
+        scale_colour_manual(values = stage_colours, name = "Stage"),
+      autoplot(hybrid_pca,
+               data = sample_info[match(rownames(hybrid_pca$x), sample_info$sample), ],
+               x = 1, y = 2, colour = "cross") +
+        scale_colour_manual(values = cross_colours, name = "Cross"),
+      nrow = 1
+    ) & coord_equal()
+  })
+  
+  output$zfp57_pca <- renderPlot({
+    
+    wrap_plots(
+      autoplot(zfp57_pca,
+               data = sample_info[match(rownames(zfp57_pca$x), sample_info$sample), ],
+               x = 1, y = 2, colour = "cell_type") +
+        scale_colour_manual(values = cell_colours, name = "Cell"),
+      autoplot(zfp57_pca,
+               data = sample_info[match(rownames(zfp57_pca$x), sample_info$sample), ],
+               x = 1, y = 2, colour = "stage") +
+        scale_colour_manual(values = stage_colours, name = "Stage"),
+      autoplot(zfp57_pca,
+               data = sample_info[match(rownames(zfp57_pca$x), sample_info$sample), ],
+               x = 1, y = 2, colour = "genotype") +
+        scale_colour_manual(values = genotype_colours, name = "Genotype"),
+      nrow = 1
+    ) & coord_equal()
+    
+  })
 }

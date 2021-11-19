@@ -118,5 +118,21 @@ ui <- navbarPage(
                 
             )
         )
+    ),
+    tabPanel(
+        "PCA",
+        fluidPage(
+            fluidRow(
+                column(2, 
+                       h4("Will add download button soon")
+                ),
+                column(10, 
+                       h3("Hybrid data"),
+                       plotOutput("hybrid_pca"),
+                       h3("Zfp57 data"),
+                       plotOutput("zfp57_pca")
+                )
+            )
+        )
     )
 )

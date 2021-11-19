@@ -163,6 +163,22 @@ gene_annot <- gene_annot %>%
   filter(name != "")
   
 
+# Dimensionality reduction ------
+
+# PCA on hybrid data
+hybrid_topn <- order(rowVars(assay(hybrid, "vst")), decreasing = TRUE)[1:1000]
+hybrid_pca <- hybrid[hybrid_topn, ] %>%
+  assay("vst") %>%
+  t() %>% #scale() %>%
+  prcomp()
+
+# PCA on zfp57 data
+zfp57_topn <- order(rowVars(assay(zfp57, "vst")), decreasing = TRUE)[1:1000]
+zfp57_pca <- zfp57[zfp57_topn, ] %>%
+  assay("vst") %>%
+  t() %>% #scale() %>%
+  prcomp()
+
 
 # Save data ---------
 
@@ -173,3 +189,5 @@ isolde_cts %>% saveRDS("data/hybrid_allele_cts.rds")
 isolde %>% saveRDS("data/hybrid_isolde.rds")
 gene_annot %>% saveRDS("data/gene_annotation.rds")
 diffexp %>% saveRDS("data/zfp57_differential_expression.rds")
+zfp57_pca %>% saveRDS("data/zfp57_pca.rds")
+hybrid_pca %>% saveRDS("data/hybrid_pca.rds")
