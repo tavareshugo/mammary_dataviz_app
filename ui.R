@@ -43,7 +43,7 @@ ui <- navbarPage(
                                               min = 0, max = 1,
                                               value = 0.05, step = 0.05),
                                   sliderInput("fc_threshold", "Fold change",
-                                              min = 0, max = 10,
+                                              min = 1, max = 10,
                                               value = 2, step = 1)
                            ),
                            column(3,

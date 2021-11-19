@@ -172,10 +172,10 @@ pre code {
 <strong>Explanation of filters</strong> (click to expand)
 </summary>
 <ul>
-<li><p><strong>FDR</strong> is the false-discovery rate (i.e. corrected p-value) threshold to use for filtering differentially expressed genes in the ZFP57 WT-vs-KO comparisons. A 5% threshold is commonly used to consider a gene differentially expressed. FDR = 1 is equivalent to no filter.</p></li>
-<li><p><strong>Fold change</strong> threshold is the minimum ratio of expression to consider between the two genotypes. If a threshold of 2x is chosen, it will select genes where either WT/KO &gt; 2 or KO/WT &gt; 2. FC = 0 is equivalent to no filter.</p></li>
-<li><p><strong>Isolde status</strong> is the significance determined by <em>Isolde</em>. “Undetermined” is when there was some ambiguity in the data (e.g. a gene with a bias of ~0.6 or with high variation across replicates). “Filtered out” are genes which did not pass the filtering criteria used by <em>Isolde</em>. Selecting all is equivalent no filter.</p></li>
-<li><p><strong>Allele bias threshold</strong> is the threshold used for the difference between maternal and paternal alleles. If a threshold of 0.8 is chosen, it will pick genes where <code>-0.8 &gt; maternal - paternal &gt; 0.8</code>. Bias = 0 is equivalent to no filter.</p></li>
+<li><p><strong>FDR</strong> is the false-discovery rate (i.e. corrected p-value) threshold to use for filtering differentially expressed genes in the ZFP57 WT-vs-KO comparisons. A 5% threshold is commonly used to consider a gene differentially expressed. <span style="color:#003300"><b>FDR = 1 is equivalent to no filter.</b></span></p></li>
+<li><p><strong>Fold change</strong> threshold is the minimum ratio of expression to consider between the two genotypes. If a threshold of 2x is chosen, it will select genes where either WT/KO &gt; 2 or KO/WT &gt; 2. <span style="color:#003300"><b>FC = 1 is equivalent to no filter.</b></span></p></li>
+<li><p><strong>Isolde status</strong> is the significance determined by <em>Isolde</em>. “Undetermined” is when there was some ambiguity in the data (e.g. a gene with a bias of ~0.6 or with high variation across replicates). “Filtered out” are genes which did not pass the filtering criteria used by <em>Isolde</em>. <span style="color:#003300"><b>Selecting all status and bias = 0 is equivalent to no filter.</b></span></p></li>
+<li><p><strong>Allele bias threshold</strong> is the threshold used for the difference between maternal and paternal alleles. If a threshold of 0.8 is chosen, it will pick genes biased in either direction (i.e. either <code>maternal - paternal &gt; 0.8</code> or <code>maternal - paternal &lt; -0.8</code>). <span style="color:#003300"><b>Bias = 0 is equivalent to no filter.</b></span></p></li>
 </ul>
 </details>
 <p><br></p>
