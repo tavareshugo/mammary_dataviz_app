@@ -7,7 +7,7 @@
 <span style="color:#003300"><b>FC = 1 is equivalent to no filter.</b></span>
 
 - **Isolde status** is the significance determined by _Isolde_. "Undetermined" is when there was some ambiguity in the data (e.g. a gene with a bias of ~0.6 or with high variation across replicates). "Filtered out" are genes which did not pass the filtering criteria used by _Isolde_. 
-<span style="color:#003300"><b>Selecting all status and bias = 0 is equivalent to no filter.</b></span>
+<span style="color:#003300"><b>Selecting all status is equivalent to no filter.</b></span>
 
 - **Allele bias threshold** is the threshold used for the difference between maternal and paternal alleles. If a threshold of 0.8 is chosen, it will pick genes biased in either direction (i.e. either `maternal - paternal > 0.8` or `maternal - paternal < -0.8`).
 <span style="color:#003300"><b>Bias = 0 is equivalent to no filter.</b></span>
