@@ -3,8 +3,10 @@ library(biomaRt)
 library(tidyverse)
 
 
+# Read dds objects -----
+
 # hybrid dataset
-hybrid <- readRDS("../mammary_cellsort_rnaseq/results/DESeqDataSet/dds_gene_regular.rds")
+hybrid <- readRDS("../mammary_cellsort_hybrid_rnaseq/results/DESeqDataSet/dds_gene_regular.rds")
 
 # zfp57 dataset
 zfp57 <- readRDS("../mammary_cellsort_zfp57_rnaseq/results/diffexp/dds.rds")
@@ -93,7 +95,7 @@ diffexp <- diffexp %>%
 # Isolde data ------------
 
 # read data
-isolde <- read_csv("../mammary_cellsort_rnaseq/results/ase_isolde/isolde_all.csv")
+isolde <- read_csv("../mammary_cellsort_hybrid_rnaseq/results/ase_isolde/isolde_all.csv")
 
 # tidy
 isolde <- isolde %>%
@@ -119,7 +121,7 @@ isolde <- isolde %>%
 # Allele-specific counts --------------
 
 # allele-specific counts
-dds_isolde <- readRDS("../mammary_cellsort_rnaseq/results/DESeqDataSet/dds_gene_allele.rds")
+dds_isolde <- readRDS("../mammary_cellsort_hybrid_rnaseq/results/DESeqDataSet/dds_gene_allele.rds")
 
 # estimate size factors for normalisation (ISoLDE recommends doing this)
 dds_isolde <- estimateSizeFactors(dds_isolde)
@@ -161,7 +163,51 @@ gene_annot <- gene_annot %>%
   dplyr::select(gene = ensembl_gene_id, name = value) %>% 
   distinct() %>% 
   filter(name != "")
-  
+
+isoform_annot <- getBM(attributes = c("ensembl_gene_id",
+                                      "ensembl_transcript_id",
+                                      "external_transcript_name"),
+                       mart = mart)
+isoform_annot <- isoform_annot %>% 
+  distinct() %>% 
+  rename(gene = ensembl_gene_id, transcript = ensembl_transcript_id, 
+         transcript_name = external_transcript_name)
+
+
+# Isoform analysis ----
+
+# deseq dataset
+isoform <- readRDS("../mammary_cellsort_hybrid_rnaseq/results/DESeqDataSet/dds_isoform_regular.rds")
+colnames(isoform) <- paste0("hybrid_", 1:ncol(isoform))
+
+isoform_expr <- isoform %>% 
+  assay("vst") %>% 
+  as_tibble(rownames = "transcript") %>% 
+  pivot_longer(-transcript, names_to = "sample", values_to = "expr")
+
+# isolde analysis
+isolde_isoform <- read_csv("../mammary_cellsort_hybrid_rnaseq/results/ase_isolde_isoform/isolde_isoform_all.csv")
+
+isolde_isoform <- isolde_isoform %>% 
+  rename(transcript = name) %>%
+  mutate(cell_type = case_when(cell_type == "luminalp" ~ "luminal progenitors",
+                               cell_type == "luminald" ~ "luminal differentiated",
+                               TRUE ~ cell_type)) %>%
+  inner_join(isoform %>% colData() %>% as_tibble(rownames = "sample") %>%
+               distinct(cell_type, timepoint, stage),
+             by = c("cell_type", "timepoint")) %>% 
+  mutate(cell_type = str_to_title(cell_type), 
+         stage = str_to_title(stage)) %>% 
+  mutate(stage = factor(stage, 
+                        levels = c("Nulliparous", "Gestation D5.5", 
+                                   "Gestation D9.5", "Gestation D14.5", 
+                                   "Lactation D2", "Lactation D5",
+                                   "Lactation D10", "Lactation D15", 
+                                   "Involution D1", "Involution D6", 
+                                   "Involution D14"))) %>% 
+  select(transcript, cell_type, stage, everything())
+
+
 
 # Dimensionality reduction ------
 
@@ -191,3 +237,6 @@ gene_annot %>% saveRDS("data/gene_annotation.rds")
 diffexp %>% saveRDS("data/zfp57_differential_expression.rds")
 zfp57_pca %>% saveRDS("data/zfp57_pca.rds")
 hybrid_pca %>% saveRDS("data/hybrid_pca.rds")
+isoform_annot %>% saveRDS("data/isoform_annotation.rds")
+isoform_expr %>% saveRDS("data/hybrid_isoform_normalised_expression.rds")
+isolde_isoform %>% saveRDS("data/hybrid_isoform_isolde.rds")

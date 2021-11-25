@@ -9,23 +9,57 @@
 
 ui <- navbarPage(
     "Mammary Gland Transcriptomes", 
+    # https://stackoverflow.com/a/56771353
+    header = tags$head(
+        tags$script(
+            "$(document).on('shiny:inputchanged', function(event) {
+          if (event.name != 'changed') {
+            Shiny.setInputValue('changed', event.name);
+          }
+        });"
+        )
+    ),
     tabPanel(
         "Gene Plots",
         fluidPage(
             fluidRow(
                 shinyjs::useShinyjs(),
-                column(3, 
+                column(2, 
                        textInput("gene",
-                                 "Gene name:", 
-                                 value = "Zfp57"),
+                                 "Gene name:"),
                        actionButton("plot", "Plot")
                 ),
                 column(9, 
                        textOutput("plotted_gene"),
                        # downloadButton("download_plot_data", "Download plot data"),
-                       plotOutput("zfp57_expr"),
-                       plotOutput("imprint_expr"),
-                       plotOutput("imprint_isolde")
+                       shinycssloaders::withSpinner(plotOutput("zfp57_expr"),
+                                                    type = 1),
+                       shinycssloaders::withSpinner(plotOutput("imprint_expr"),
+                                                    type = 0),
+                       shinycssloaders::withSpinner(plotOutput("imprint_isolde"),
+                                                    type = 0)
+                )
+            )
+        )
+    ),
+    tabPanel(
+        "Isoform Plots",
+        fluidPage(
+            fluidRow(
+                column(2,
+                       textInput("isoform_gene",
+                                 "Gene name:"),
+                       actionButton("isoform_plot", "Plot")
+                ),
+                column(10,
+                       textOutput("plotted_isoform"),
+                       htmlOutput("ensembl_isoform_link"),
+                       shinycssloaders::withSpinner(plotOutput("isoform_expression", 
+                                                               height = "auto"),
+                                                    type = 1),
+                       shinycssloaders::withSpinner(plotOutput("isoform_ase", 
+                                                               height = "auto"), 
+                                                    type = 0)
                 )
             )
         )
@@ -124,13 +158,14 @@ ui <- navbarPage(
         fluidPage(
             fluidRow(
                 column(2, 
-                       h4("Will add download button soon")
+                       h4("Will add download button soon"),
+                       h4("(plot may take a while to load)")
                 ),
                 column(10, 
                        h3("Hybrid data"),
-                       plotOutput("hybrid_pca"),
+                       shinycssloaders::withSpinner(plotOutput("hybrid_pca")),
                        h3("Zfp57 data"),
-                       plotOutput("zfp57_pca")
+                       shinycssloaders::withSpinner(plotOutput("zfp57_pca"))
                 )
             )
         )
