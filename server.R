@@ -44,7 +44,7 @@ isoform_annot <- readRDS("data/isoform_annotation.rds")
 
 
 # Define server logic 
-server <- function(input, output) {
+server <- function(input, output, session) {
   
   # Plot panel -----
   
