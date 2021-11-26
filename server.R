@@ -60,7 +60,7 @@ server <- function(input, output, session) {
   
   observeEvent(input$plot, {
     # update the other input text box
-    updateTextInput(inputId = "isoform_gene", value = input$gene)
+    updateTextInput(session, inputId = "isoform_gene", value = input$gene)
     target_gene$gene <- annot %>% 
       filter(gene == toupper(input$gene) | toupper(name) == toupper(input$gene)) %>% 
       distinct(gene)      
@@ -68,7 +68,7 @@ server <- function(input, output, session) {
   
   observeEvent(input$isoform_plot, {
     # update the other input text box
-    updateTextInput(inputId = "gene", value = input$isoform_gene)
+    updateTextInput(session, inputId = "gene", value = input$isoform_gene)
     target_gene$gene <- annot %>% 
       filter(gene == toupper(input$isoform_gene) | toupper(name) == toupper(input$isoform_gene)) %>% 
       distinct(gene)
