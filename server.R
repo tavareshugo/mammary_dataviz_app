@@ -310,7 +310,7 @@ server <- function(input, output, session) {
                x = 1, y = 2, colour = "cross") +
         scale_colour_manual(values = cross_colours, name = "Cross"),
       nrow = 1
-    ) & coord_equal()
+    ) + plot_annotation(title = "PCA on Hybrid Samples") & coord_equal()
   })
   
   output$zfp57_pca <- renderPlot({
@@ -329,7 +329,50 @@ server <- function(input, output, session) {
                x = 1, y = 2, colour = "genotype") +
         scale_colour_manual(values = genotype_colours, name = "Genotype"),
       nrow = 1
-    ) & coord_equal()
+    ) + plot_annotation(title = "PCA on ZFP57 Samples") & coord_equal()
     
   })
+  
+  output$download_pca_data <- downloadHandler(
+    filename = function() {
+      paste("mammary_gland_pca", ".xlsx", sep = "")
+    },
+    content = function(file) {
+      withProgress({
+        zfp57_scores <- zfp57_pca$x %>% 
+          as_tibble(rownames = "sample") %>% 
+          select(sample, PC1:PC10) %>% 
+          left_join(sample_info, by = "sample") %>% 
+          select(cell_type, stage, genotype, animal_id, matches("PC"))
+        
+        zfp57_variance <- tibble(variance = zfp57_pca$sdev^2) %>% 
+          mutate(PC = paste0("PC", 1:n()),
+                 pct_variance = variance/sum(variance)*100) %>% 
+          filter(PC %in% paste0("PC", 1:10)) %>% 
+          select(PC, variance, pct_variance)
+        
+        hybrid_scores <- hybrid_pca$x %>% 
+          as_tibble(rownames = "sample") %>% 
+          select(sample, PC1:PC10) %>% 
+          left_join(sample_info, by = "sample") %>% 
+          select(cell_type, stage, genotype, animal_id, matches("PC"))
+        
+        hybrid_variance <- tibble(variance = hybrid_pca$sdev^2) %>% 
+          mutate(PC = paste0("PC", 1:n()),
+                 pct_variance = variance/sum(variance)*100) %>% 
+          filter(PC %in% paste0("PC", 1:10)) %>% 
+          select(PC, variance, pct_variance)
+        
+      })
+      write_xlsx(
+        list(`Hybrid PCA` = hybrid_scores,
+             `Hybrid PCA variance` = hybrid_variance,
+             `ZFP57 PCA` = zfp57_scores,
+             `ZFP57 PCA variance` = zfp57_variance), 
+        file
+        )
+    }
+  )
+  
+  
 }

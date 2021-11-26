@@ -158,14 +158,12 @@ ui <- navbarPage(
         fluidPage(
             fluidRow(
                 column(2, 
-                       h4("Will add download button soon"),
-                       h4("(plot may take a while to load)")
+                       downloadButton("download_pca_data", "Download PCA data")
                 ),
                 column(10, 
-                       h3("Hybrid data"),
                        shinycssloaders::withSpinner(plotOutput("hybrid_pca")),
-                       h3("Zfp57 data"),
-                       shinycssloaders::withSpinner(plotOutput("zfp57_pca"))
+                       shinycssloaders::withSpinner(plotOutput("zfp57_pca"),
+                                                    type = 0)
                 )
             )
         )
