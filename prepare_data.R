@@ -1,7 +1,7 @@
 library(DESeq2)
 library(biomaRt)
 library(tidyverse)
-
+library(nanoparquet)
 
 # Read dds objects -----
 
@@ -228,15 +228,55 @@ zfp57_pca <- zfp57[zfp57_topn, ] %>%
 
 # Save data ---------
 
-sample_info %>% saveRDS("data/sample_info.rds")
-zfp57_expr %>% saveRDS("data/zfp57_normalised_expression.rds")
-hybrid_expr %>% saveRDS("data/hybrid_normalised_expression.rds")
-isolde_cts %>% saveRDS("data/hybrid_allele_cts.rds")
-isolde %>% saveRDS("data/hybrid_isolde.rds")
-gene_annot %>% saveRDS("data/gene_annotation.rds")
-diffexp %>% saveRDS("data/zfp57_differential_expression.rds")
+nanoparquet::write_parquet(
+  sample_info, "data/sample_info.parquet",
+  compression = "gzip",
+  options = nanoparquet::parquet_options(compression_level = 9)
+)
+nanoparquet::write_parquet(
+  zfp57_expr, "data/zfp57_normalised_expression.parquet",
+  compression = "gzip",
+  options = nanoparquet::parquet_options(compression_level = 9)
+)
+nanoparquet::write_parquet(
+  hybrid_expr, "data/hybrid_normalised_expression.parquet",
+  compression = "gzip",
+  options = nanoparquet::parquet_options(compression_level = 9)
+)
+nanoparquet::write_parquet(
+  isolde_cts, "data/hybrid_allele_cts.parquet",
+  compression = "gzip",
+  options = nanoparquet::parquet_options(compression_level = 9)
+)
+nanoparquet::write_parquet(
+  isolde, "data/hybrid_isolde.parquet",
+  compression = "gzip",
+  options = nanoparquet::parquet_options(compression_level = 9)
+)
+nanoparquet::write_parquet(
+  gene_annot, "data/gene_annotation.parquet",
+  compression = "gzip",
+  options = nanoparquet::parquet_options(compression_level = 9)
+)
+nanoparquet::write_parquet(
+  diffexp, "data/zfp57_differential_expression.parquet",
+  compression = "gzip",
+  options = nanoparquet::parquet_options(compression_level = 9)
+)
+nanoparquet::write_parquet(
+  isoform_annot, "data/isoform_annotation.parquet",
+  compression = "gzip",
+  options = nanoparquet::parquet_options(compression_level = 9)
+)
+nanoparquet::write_parquet(
+  isoform_expr, "data/hybrid_isoform_normalised_expression.parquet",
+  compression = "gzip",
+  options = nanoparquet::parquet_options(compression_level = 9)
+)
+nanoparquet::write_parquet(
+  isolde_isoform, "data/hybrid_isoform_isolde.parquet",
+  compression = "gzip",
+  options = nanoparquet::parquet_options(compression_level = 9)
+)
 zfp57_pca %>% saveRDS("data/zfp57_pca.rds")
 hybrid_pca %>% saveRDS("data/hybrid_pca.rds")
-isoform_annot %>% saveRDS("data/isoform_annotation.rds")
-isoform_expr %>% saveRDS("data/hybrid_isoform_normalised_expression.rds")
-isolde_isoform %>% saveRDS("data/hybrid_isoform_isolde.rds")
