@@ -1,5 +1,6 @@
 library(shiny)
-library(tidyverse)
+library(duckplyr)
+library(ggplot2)
 library(patchwork)
 library(writexl)
 library(ggfortify)
@@ -30,17 +31,17 @@ genotype_colours <- c("WT" = "black", "KO" = "brown")
 
 
 # load data
-zfp57_expr <- readRDS("data/zfp57_normalised_expression.rds")
-hybrid_expr <- readRDS("data/hybrid_normalised_expression.rds")
-isolde <- readRDS("data/hybrid_isolde.rds")
-annot <- readRDS("data/gene_annotation.rds")
-sample_info <- readRDS("data/sample_info.rds")
-diffexp <- readRDS("data/zfp57_differential_expression.rds")
+zfp57_expr <- read_parquet_duckdb("data/zfp57_normalised_expression.parquet")
+hybrid_expr <- read_parquet_duckdb("data/hybrid_normalised_expression.parquet")
+isolde <- read_parquet_duckdb("data/hybrid_isolde.parquet")
+annot <- read_parquet_duckdb("data/gene_annotation.parquet")
+sample_info <- read_parquet_duckdb("data/sample_info.parquet")
+diffexp <- read_parquet_duckdb("data/zfp57_differential_expression.parquet")
 zfp57_pca <- readRDS("data/zfp57_pca.rds")
 hybrid_pca <- readRDS("data/hybrid_pca.rds")
-hybrid_isoform_expr <- readRDS("data/hybrid_isoform_normalised_expression.rds")
-isolde_isoform <- readRDS("data/hybrid_isoform_isolde.rds")
-isoform_annot <- readRDS("data/isoform_annotation.rds")
+hybrid_isoform_expr <- read_parquet_duckdb("data/hybrid_isoform_normalised_expression.parquet")
+isolde_isoform <- read_parquet_duckdb("data/hybrid_isoform_isolde.parquet")
+isoform_annot <- read_parquet_duckdb("data/isoform_annotation.parquet")
 
 
 # Define server logic 
@@ -160,7 +161,7 @@ server <- function(input, output, session) {
     
     target_gene$gene %>% 
       left_join(isolde, by = "gene") %>% 
-      drop_na(diff_prop) %>% 
+      filter(!is.na(diff_prop)) %>% 
       ggplot(aes(stage, diff_prop)) +
       geom_hline(yintercept = 0) +
       geom_line(aes(colour = cell_type, group = cell_type),
@@ -251,7 +252,7 @@ server <- function(input, output, session) {
     target_gene$gene %>% 
       left_join(isoform_annot, by = "gene") %>% 
       inner_join(isolde_isoform, by = "transcript") %>% 
-      drop_na(diff_prop) %>% 
+      filter(!is.na(diff_prop)) %>% 
       ggplot(aes(stage, diff_prop)) +
       geom_hline(yintercept = 0) +
       geom_line(aes(colour = cell_type, group = cell_type),
