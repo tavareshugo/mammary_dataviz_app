@@ -51,8 +51,8 @@ server <- function(input, output, session) {
   
   # check if things should be plotted
   # target_gene <- eventReactive(c(input$plot, input$isoform_plot), {
-  #   annot %>% 
-  #     filter(gene == toupper(input$gene) | toupper(name) == toupper(input$gene)) %>% 
+  #   annot |> 
+  #     filter(gene == toupper(input$gene) | toupper(name) == toupper(input$gene)) |> 
   #     distinct(gene)      
   # })
   
@@ -62,16 +62,16 @@ server <- function(input, output, session) {
   observeEvent(input$plot, {
     # update the other input text box
     updateTextInput(session, inputId = "isoform_gene", value = input$gene)
-    target_gene$gene <- annot %>% 
-      filter(gene == toupper(input$gene) | toupper(name) == toupper(input$gene)) %>% 
+    target_gene$gene <- annot |> 
+      filter(gene == toupper(input$gene) | toupper(name) == toupper(input$gene)) |> 
       distinct(gene)      
   })
   
   observeEvent(input$isoform_plot, {
     # update the other input text box
     updateTextInput(session, inputId = "gene", value = input$isoform_gene)
-    target_gene$gene <- annot %>% 
-      filter(gene == toupper(input$isoform_gene) | toupper(name) == toupper(input$isoform_gene)) %>% 
+    target_gene$gene <- annot |> 
+      filter(gene == toupper(input$isoform_gene) | toupper(name) == toupper(input$isoform_gene)) |> 
       distinct(gene)
   })
   
@@ -95,10 +95,10 @@ server <- function(input, output, session) {
   # information about which gene is being plotted
   output$plotted_gene <- renderText({
     validate(valid_target_gene())
-    plotted_gene <- target_gene$gene %>% 
-      left_join(annot, by = "gene") %>% 
-      group_by(gene) %>% 
-      summarise(name = paste(name, collapse = "/")) %>% ungroup()
+    plotted_gene <- target_gene$gene |> 
+      left_join(annot, by = "gene") |> 
+      group_by(gene) |> 
+      summarise(name = paste(name, collapse = "/")) |> ungroup()
     paste0("Showing: ", plotted_gene$name, " (", plotted_gene$gene, ")")
   })
   
@@ -106,9 +106,9 @@ server <- function(input, output, session) {
   output$zfp57_expr <- renderPlot({
     validate(valid_target_gene())
     
-    p1 <- target_gene$gene %>% 
-      left_join(diffexp, by = "gene") %>% 
-      mutate(padj = ifelse(is.na(padj), 1, padj)) %>% 
+    p1 <- target_gene$gene |> 
+      left_join(diffexp, by = "gene") |> 
+      mutate(padj = ifelse(is.na(padj), 1, padj)) |> 
       ggplot(aes(stage, -log2FoldChange)) +
       geom_hline(yintercept = 0, linetype = 2) +
       geom_line(aes(group = cell_type, colour = cell_type)) +
@@ -118,9 +118,9 @@ server <- function(input, output, session) {
       scale_shape_manual(values = c("TRUE" = 19, "FALSE" = 1)) +
       theme(axis.text.x = element_text(angle = 45, hjust = 1))
     
-    p2 <- target_gene$gene %>% 
-      left_join(zfp57_expr, by = "gene") %>% 
-      left_join(sample_info, by = "sample") %>% 
+    p2 <- target_gene$gene |> 
+      left_join(zfp57_expr, by = "gene") |> 
+      left_join(sample_info, by = "sample") |> 
       ggplot(aes(stage, expr)) +
       ggbeeswarm::geom_quasirandom(aes(colour = genotype), 
                                    dodge.width = 0.5, size = 2,
@@ -140,9 +140,9 @@ server <- function(input, output, session) {
   output$imprint_expr <- renderPlot({
     validate(valid_target_gene())
     
-    target_gene$gene %>% 
-      left_join(hybrid_expr) %>% 
-      left_join(sample_info, by = "sample") %>% 
+    target_gene$gene |> 
+      left_join(hybrid_expr) |> 
+      left_join(sample_info, by = "sample") |> 
       ggplot(aes(stage, expr, colour = cell_type)) +
       ggbeeswarm::geom_quasirandom(dodge.width = 0.5, size = 2, groupOnX = TRUE) +
       geom_line(stat = "summary", fun = "median", aes(group = 1),
@@ -159,9 +159,9 @@ server <- function(input, output, session) {
   output$imprint_isolde <- renderPlot({
     validate(valid_target_gene())
     
-    target_gene$gene %>% 
-      left_join(isolde, by = "gene") %>% 
-      filter(!is.na(diff_prop)) %>% 
+    target_gene$gene |> 
+      left_join(isolde, by = "gene") |> 
+      filter(!is.na(diff_prop)) |> 
       ggplot(aes(stage, diff_prop)) +
       geom_hline(yintercept = 0) +
       geom_line(aes(colour = cell_type, group = cell_type),
@@ -180,10 +180,10 @@ server <- function(input, output, session) {
   # information about which gene/isoform is being plotted
   output$plotted_isoform <- renderText({
     validate(valid_target_gene())
-    plotted_gene <- target_gene$gene %>% 
-      left_join(annot, by = "gene") %>% 
-      group_by(gene) %>% 
-      summarise(name = paste(name, collapse = "/")) %>% ungroup()
+    plotted_gene <- target_gene$gene |> 
+      left_join(annot, by = "gene") |> 
+      group_by(gene) |> 
+      summarise(name = paste(name, collapse = "/")) |> ungroup()
     paste0("Showing: ", plotted_gene$name, " (", plotted_gene$gene, ")")
   })
   output$ensembl_isoform_link <- renderUI({
@@ -198,9 +198,9 @@ server <- function(input, output, session) {
   n_isoforms <- reactive({
     if(is.null(target_gene$gene)) return(1)
     
-    n_isoforms <- target_gene$gene %>%
-      left_join(isoform_annot, by = "gene") %>%
-      distinct(transcript) %>%
+    n_isoforms <- target_gene$gene |>
+      left_join(isoform_annot, by = "gene") |>
+      distinct(transcript) |>
       nrow()
     return(n_isoforms)
   })
@@ -210,10 +210,10 @@ server <- function(input, output, session) {
     
     validate(valid_target_gene())
     
-    # target_gene$gene %>% 
-    #   left_join(isoform_annot, by = "gene") %>% 
-    #   inner_join(hybrid_isoform_expr, by = "transcript") %>% 
-    #   left_join(sample_info, by = "sample") %>% 
+    # target_gene$gene |> 
+    #   left_join(isoform_annot, by = "gene") |> 
+    #   inner_join(hybrid_isoform_expr, by = "transcript") |> 
+    #   left_join(sample_info, by = "sample") |> 
     #   ggplot(aes(stage, expr, colour = cell_type)) +
     #   ggbeeswarm::geom_quasirandom(dodge.width = 0.5, size = 2, groupOnX = TRUE) +
     #   geom_line(stat = "summary", fun = "median", aes(group = 1),
@@ -226,12 +226,12 @@ server <- function(input, output, session) {
     #   theme(axis.text.x = element_text(angle = 45, hjust = 1),
     #         panel.border = element_rect(fill = NA, colour = "black"))
     
-    target_gene$gene %>% 
-      left_join(isoform_annot, by = "gene") %>% 
-      inner_join(hybrid_isoform_expr, by = "transcript") %>% 
-      left_join(sample_info, by = "sample") %>% 
-      group_by(transcript_name, stage, cell_type) %>% 
-      summarise(expr = median(expr)) %>% 
+    target_gene$gene |> 
+      left_join(isoform_annot, by = "gene") |> 
+      inner_join(hybrid_isoform_expr, by = "transcript") |> 
+      left_join(sample_info, by = "sample") |> 
+      group_by(transcript_name, stage, cell_type) |> 
+      summarise(expr = median(expr)) |> 
       ggplot(aes(stage, transcript_name, fill = expr)) +
       geom_tile() + 
       facet_grid( ~ cell_type) +
@@ -249,10 +249,10 @@ server <- function(input, output, session) {
   output$isoform_ase <- renderPlot({
     validate(valid_target_gene())
     
-    target_gene$gene %>% 
-      left_join(isoform_annot, by = "gene") %>% 
-      inner_join(isolde_isoform, by = "transcript") %>% 
-      filter(!is.na(diff_prop)) %>% 
+    target_gene$gene |> 
+      left_join(isoform_annot, by = "gene") |> 
+      inner_join(isolde_isoform, by = "transcript") |> 
+      filter(!is.na(diff_prop)) |> 
       ggplot(aes(stage, diff_prop)) +
       geom_hline(yintercept = 0) +
       geom_line(aes(colour = cell_type, group = cell_type),
@@ -340,28 +340,28 @@ server <- function(input, output, session) {
     },
     content = function(file) {
       withProgress({
-        zfp57_scores <- zfp57_pca$x %>% 
-          as_tibble(rownames = "sample") %>% 
-          select(sample, PC1:PC10) %>% 
-          left_join(sample_info, by = "sample") %>% 
+        zfp57_scores <- zfp57_pca$x |> 
+          as_tibble(rownames = "sample") |> 
+          select(sample, PC1:PC10) |> 
+          left_join(sample_info, by = "sample") |> 
           select(cell_type, stage, genotype, animal_id, matches("PC"))
         
-        zfp57_variance <- tibble(variance = zfp57_pca$sdev^2) %>% 
+        zfp57_variance <- tibble(variance = zfp57_pca$sdev^2) |> 
           mutate(PC = paste0("PC", 1:n()),
-                 pct_variance = variance/sum(variance)*100) %>% 
-          filter(PC %in% paste0("PC", 1:10)) %>% 
+                 pct_variance = variance/sum(variance)*100) |> 
+          filter(PC %in% paste0("PC", 1:10)) |> 
           select(PC, variance, pct_variance)
         
-        hybrid_scores <- hybrid_pca$x %>% 
-          as_tibble(rownames = "sample") %>% 
-          select(sample, PC1:PC10) %>% 
-          left_join(sample_info, by = "sample") %>% 
+        hybrid_scores <- hybrid_pca$x |> 
+          as_tibble(rownames = "sample") |> 
+          select(sample, PC1:PC10) |> 
+          left_join(sample_info, by = "sample") |> 
           select(cell_type, stage, genotype, animal_id, matches("PC"))
         
-        hybrid_variance <- tibble(variance = hybrid_pca$sdev^2) %>% 
+        hybrid_variance <- tibble(variance = hybrid_pca$sdev^2) |> 
           mutate(PC = paste0("PC", 1:n()),
-                 pct_variance = variance/sum(variance)*100) %>% 
-          filter(PC %in% paste0("PC", 1:10)) %>% 
+                 pct_variance = variance/sum(variance)*100) |> 
+          filter(PC %in% paste0("PC", 1:10)) |> 
           select(PC, variance, pct_variance)
         
       })
