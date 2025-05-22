@@ -1,5 +1,6 @@
 library(shiny)
 library(duckplyr)
+library(stringr)
 library(ggplot2)
 library(patchwork)
 library(writexl)
@@ -291,6 +292,7 @@ server <- function(input, output, session) {
                                       cell_type = input$cell_type,
                                       genes = input$genes)
       })
+      # write output as excel file
       write_xlsx(out, file)
     }
   )

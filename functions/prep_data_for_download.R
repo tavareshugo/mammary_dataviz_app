@@ -12,29 +12,34 @@ prep_data_for_download <- function(annot,
                                    cell_type,
                                    genes = NULL){
   setProgress(value = 0, message = "Preparing data...")
-  
+
   # requested genes to subset ----
-  user_genes <- read.table(text = genes, 
-                           header = FALSE, 
-                           col.names = "name") |> 
-    mutate(name = str_trim(name))
-  user_genes <- which(tolower(annot$gene) %in% tolower(user_genes$name) | 
-                        tolower(annot$name) %in% tolower(user_genes$name))
-  user_genes <- annot$gene[user_genes]
-  
+  if (!is.null(genes) && genes != "") {
+    user_genes <- read.table(text = genes, 
+                             header = FALSE, 
+                             col.names = "name") |> 
+      mutate(name = str_trim(name))
+    user_genes <- which(tolower(annot$gene) %in% tolower(user_genes$name) | 
+                          tolower(annot$name) %in% tolower(user_genes$name))
+    user_genes <- annot$gene[user_genes]
+  } else {
+    user_genes <- annot$gene
+  }
+
   # tidy annotation ----
   annot <- annot |> 
-    group_by(gene) |> 
-    summarise(name = paste(name, collapse = "/")) |> 
-    ungroup()
-
+    collect() |>
+    summarise(name = paste(name, collapse = "/"), .by = "gene")
+    
   # Genes to retain ----
   gene_set_degs <- diffexp |> 
+    collect() |>
     # filter
     filter(padj <= fdr_threshold & abs(log2FoldChange) >= log2(fc_threshold) &
              stage %in% stage & cell_type %in% cell_type) |> 
     distinct(gene) |> pull(gene)
   gene_set_isolde <- isolde |> 
+    collect() |>
     filter(abs(diff_prop) >= ase_threshold & status %in% ase_status &
              stage %in% stage & cell_type %in% cell_type) |> 
     distinct(gene) |> pull(gene)
@@ -42,7 +47,7 @@ prep_data_for_download <- function(annot,
   if(length(user_genes) > 0){
     gene_set <- intersect(gene_set, user_genes)
   }
-  
+
   # if(!is.null(genes)){
   #   genes <- str_squish(genes)
   #   annot <- annot |> filter(gene %in% genes)
@@ -53,6 +58,7 @@ prep_data_for_download <- function(annot,
   
   # filters
   diffexp_out <- diffexp |> 
+    collect() |>
     # filter
     filter(gene %in% gene_set & 
              padj <= fdr_threshold & 
@@ -72,6 +78,7 @@ prep_data_for_download <- function(annot,
   setProgress(value = 0.4, message = "Preparing data...")
   
   zfp57_expr_out <- zfp57_expr |> 
+    collect() |>
     filter(gene %in% gene_set) |> 
     # right_join(diffexp_out |> distinct(gene), by = "gene") |> 
     left_join(sample_info, by = "sample") |> 
@@ -86,6 +93,7 @@ prep_data_for_download <- function(annot,
   setProgress(value = 0.6, message = "Preparing data...")
   
   hybrid_expr_out <- hybrid_expr |> 
+    collect() |>
     filter(gene %in% gene_set) |> 
     # right_join(diffexp_out |> distinct(gene), by = "gene") |> 
     left_join(sample_info, by = "sample") |> 
@@ -99,6 +107,7 @@ prep_data_for_download <- function(annot,
   setProgress(value = 0.8, message = "Preparing data...")
   
   isolde_out <- isolde |> 
+    collect() |>
     # retain only DEGs
     # right_join(diffexp_out |> distinct(gene), by = "gene") |> 
     # filter
@@ -117,9 +126,8 @@ prep_data_for_download <- function(annot,
   # return result ----
   setProgress(value = 1, message = "Preparing data...")
   
-  list(`ZFP57 differential expression` = diffexp_out,
-       `ZFP57 normalised expression` = zfp57_expr_out,
-       `Hybrid normalised expression` = hybrid_expr_out,
-       `Hybrid Isolde analysis` = isolde_out)
-  
+  list(`ZFP57 differential expression` = diffexp_out |> as.data.frame(),
+       `ZFP57 normalised expression` = zfp57_expr_out |> as.data.frame(),
+       `Hybrid normalised expression` = hybrid_expr_out |> as.data.frame(),
+       `Hybrid Isolde analysis` = isolde_out |> as.data.frame())
 }

@@ -65,6 +65,21 @@ ui <- navbarPage(
         )
     ),
     tabPanel(
+        "PCA",
+        fluidPage(
+            fluidRow(
+                column(2, 
+                       downloadButton("download_pca_data", "Download PCA data")
+                ),
+                column(10, 
+                       shinycssloaders::withSpinner(plotOutput("hybrid_pca")),
+                       shinycssloaders::withSpinner(plotOutput("zfp57_pca"),
+                                                    type = 0)
+                )
+            )
+        )
+    ),
+    tabPanel(
         "Data Download",
         fluidPage(
             fluidRow(
@@ -150,21 +165,6 @@ ui <- navbarPage(
                            )
                        ))
                 
-            )
-        )
-    ),
-    tabPanel(
-        "PCA",
-        fluidPage(
-            fluidRow(
-                column(2, 
-                       downloadButton("download_pca_data", "Download PCA data")
-                ),
-                column(10, 
-                       shinycssloaders::withSpinner(plotOutput("hybrid_pca")),
-                       shinycssloaders::withSpinner(plotOutput("zfp57_pca"),
-                                                    type = 0)
-                )
             )
         )
     )
