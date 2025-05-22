@@ -7,3 +7,9 @@ The script `prepare_data.R` makes all the necessary files used in the App and fe
 
 - `../mammary_cellsort_hybrid_rnaseq` - these are data from hybrid mice ([code]())
 - `../mammary_cellsort_zfp57_rnaseq` - data from _zfp57_ mutants ([code]())
+
+To upload to public Shiny server: 
+
+```r
+rsconnect::deployApp(appFileManifest = "app_file_manifest.txt", appId = "14661594")
+```
