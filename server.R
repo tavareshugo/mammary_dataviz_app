@@ -109,7 +109,8 @@ server <- function(input, output, session) {
     
     p1 <- target_gene$gene |> 
       left_join(diffexp, by = "gene") |> 
-      mutate(padj = ifelse(is.na(padj), 1, padj)) |> 
+      mutate(padj = ifelse(is.na(padj), 1, padj),
+             stage = factor(stage, levels = names(stage_colours))) |> 
       ggplot(aes(stage, -log2FoldChange)) +
       geom_hline(yintercept = 0, linetype = 2) +
       geom_line(aes(group = cell_type, colour = cell_type)) +
@@ -122,6 +123,7 @@ server <- function(input, output, session) {
     p2 <- target_gene$gene |> 
       left_join(zfp57_expr, by = "gene") |> 
       left_join(sample_info, by = "sample") |> 
+      mutate(stage = factor(stage, levels = names(stage_colours))) |>
       ggplot(aes(stage, expr)) +
       ggbeeswarm::geom_quasirandom(aes(colour = genotype), 
                                    dodge.width = 0.5, size = 2,
@@ -144,6 +146,7 @@ server <- function(input, output, session) {
     target_gene$gene |> 
       left_join(hybrid_expr) |> 
       left_join(sample_info, by = "sample") |> 
+      mutate(stage = factor(stage, levels = names(stage_colours))) |>
       ggplot(aes(stage, expr, colour = cell_type)) +
       ggbeeswarm::geom_quasirandom(dodge.width = 0.5, size = 2, groupOnX = TRUE) +
       geom_line(stat = "summary", fun = "median", aes(group = 1),
@@ -163,6 +166,7 @@ server <- function(input, output, session) {
     target_gene$gene |> 
       left_join(isolde, by = "gene") |> 
       filter(!is.na(diff_prop)) |> 
+      mutate(stage = factor(stage, levels = names(stage_colours))) |>
       ggplot(aes(stage, diff_prop)) +
       geom_hline(yintercept = 0) +
       geom_line(aes(colour = cell_type, group = cell_type),
@@ -231,8 +235,8 @@ server <- function(input, output, session) {
       left_join(isoform_annot, by = "gene") |> 
       inner_join(hybrid_isoform_expr, by = "transcript") |> 
       left_join(sample_info, by = "sample") |> 
-      group_by(transcript_name, stage, cell_type) |> 
-      summarise(expr = median(expr)) |> 
+      summarise(expr = median(expr), .by = c(transcript_name, stage, cell_type)) |> 
+      mutate(stage = factor(stage, levels = names(stage_colours))) |>
       ggplot(aes(stage, transcript_name, fill = expr)) +
       geom_tile() + 
       facet_grid( ~ cell_type) +
@@ -254,6 +258,7 @@ server <- function(input, output, session) {
       left_join(isoform_annot, by = "gene") |> 
       inner_join(isolde_isoform, by = "transcript") |> 
       filter(!is.na(diff_prop)) |> 
+      mutate(stage = factor(stage, levels = names(stage_colours))) |>
       ggplot(aes(stage, diff_prop)) +
       geom_hline(yintercept = 0) +
       geom_line(aes(colour = cell_type, group = cell_type),
@@ -270,32 +275,32 @@ server <- function(input, output, session) {
     
   }, height = function() max(400, as.integer(ceiling(200 * n_isoforms()/8))))
 
-  # Data panel ----
+  # # Data panel ----
   
-  output$download_data <- downloadHandler(
-    filename = function() {
-      paste("mammary_gland_expression", ".xlsx", sep = "")
-    },
-    content = function(file) {
-      withProgress({
-        out <- prep_data_for_download(annot = annot,
-                                      diffexp = diffexp,
-                                      zfp57_expr = zfp57_expr,
-                                      isolde = isolde,
-                                      hybrid_expr = hybrid_expr,
-                                      sample_info = sample_info,
-                                      fdr_threshold = input$fdr_zfp57,
-                                      fc_threshold = input$fc_threshold,
-                                      ase_status = input$isolde_status,
-                                      ase_threshold = input$ase_bias_threshold,
-                                      stage = input$stage,
-                                      cell_type = input$cell_type,
-                                      genes = input$genes)
-      })
-      # write output as excel file
-      write_xlsx(out, file)
-    }
-  )
+  # output$download_data <- downloadHandler(
+  #   filename = function() {
+  #     paste("mammary_gland_expression", ".xlsx", sep = "")
+  #   },
+  #   content = function(file) {
+  #     withProgress({
+  #       out <- prep_data_for_download(annot = annot,
+  #                                     diffexp = diffexp,
+  #                                     zfp57_expr = zfp57_expr,
+  #                                     isolde = isolde,
+  #                                     hybrid_expr = hybrid_expr,
+  #                                     sample_info = sample_info,
+  #                                     fdr_threshold = input$fdr_zfp57,
+  #                                     fc_threshold = input$fc_threshold,
+  #                                     ase_status = input$isolde_status,
+  #                                     ase_threshold = input$ase_bias_threshold,
+  #                                     stage = input$stage,
+  #                                     cell_type = input$cell_type,
+  #                                     genes = input$genes)
+  #     })
+  #     # write output as excel file
+  #     write_xlsx(out, file)
+  #   }
+  # )
 
   # PCA panel ----
   output$hybrid_pca <- renderPlot({
