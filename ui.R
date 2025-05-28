@@ -26,39 +26,18 @@ ui <- navbarPage(
                 shinyjs::useShinyjs(),
                 column(2, 
                        textInput("gene",
-                                 "Gene name:"),
-                       actionButton("plot", "Plot")
+                                 "Gene name or Ensembl ID:"),
+                       actionButton("plot", "Plot"),
+                       br(), br(),
+                       downloadButton("download_plot_data", "Download Plot Data")
                 ),
                 column(9, 
-                       textOutput("plotted_gene"),
-                       # downloadButton("download_plot_data", "Download plot data"),
-                       shinycssloaders::withSpinner(plotOutput("zfp57_expr"),
+                      #  downloadButton("download_plot_data", "Download plot data"),
+                       shinycssloaders::withSpinner(uiOutput("plotted_gene"),
                                                     type = 1),
                        shinycssloaders::withSpinner(plotOutput("imprint_expr"),
                                                     type = 0),
                        shinycssloaders::withSpinner(plotOutput("imprint_isolde"),
-                                                    type = 0)
-                )
-            )
-        )
-    ),
-    tabPanel(
-        "Isoform Plots",
-        fluidPage(
-            fluidRow(
-                column(2,
-                       textInput("isoform_gene",
-                                 "Gene name:"),
-                       actionButton("isoform_plot", "Plot")
-                ),
-                column(10,
-                       textOutput("plotted_isoform"),
-                       htmlOutput("ensembl_isoform_link"),
-                       shinycssloaders::withSpinner(plotOutput("isoform_expression", 
-                                                               height = "auto"),
-                                                    type = 1),
-                       shinycssloaders::withSpinner(plotOutput("isoform_ase", 
-                                                               height = "auto"), 
                                                     type = 0)
                 )
             )
@@ -72,100 +51,9 @@ ui <- navbarPage(
                        downloadButton("download_pca_data", "Download PCA data")
                 ),
                 column(10, 
-                       shinycssloaders::withSpinner(plotOutput("hybrid_pca")),
-                       shinycssloaders::withSpinner(plotOutput("zfp57_pca"),
-                                                    type = 0)
+                       shinycssloaders::withSpinner(plotOutput("hybrid_pca"))
                 )
             )
         )
     )
-    # tabPanel(
-    #     "Data Download",
-    #     fluidPage(
-    #         fluidRow(
-    #             column(12, 
-    #                    h3("Thresholds for filtering"),
-    #                    fluidRow(
-    #                        column(3,
-    #                               h4("ZFP57 data"),
-    #                               sliderInput("fdr_zfp57", "FDR", 
-    #                                           min = 0, max = 1,
-    #                                           value = 0.05, step = 0.05),
-    #                               sliderInput("fc_threshold", "Fold change",
-    #                                           min = 1, max = 10,
-    #                                           value = 2, step = 1)
-    #                        ),
-    #                        column(3,
-    #                               h3(""),
-    #                               h4("Hybrid data"),
-    #                               checkboxGroupInput("isolde_status", "Isolde status",
-    #                                                  choices = list(
-    #                                                      `Biased expression` = "ASE",
-    #                                                      `Biallelic` = "BA",
-    #                                                      `Undetermined` = "UN",
-    #                                                      `Filtered out` = "FILT"
-    #                                                  ),
-    #                                                  selected = "ASE"),
-    #                               sliderInput("ase_bias_threshold", "Allele bias threshold",
-    #                                           min = 0, max = 1, value = 0.7, step = 0.1)),
-    #                        column(2,
-    #                               h4("Cell type"),
-    #                               checkboxGroupInput("cell_type", "",
-    #                                                  choices = list(
-    #                                                      "Adipocytes",
-    #                                                      "Basal",
-    #                                                      "Endothelial",
-    #                                                      "Luminal Differentiated",
-    #                                                      "Luminal Progenitors",
-    #                                                      "Stromal"
-    #                                                  ),
-    #                                                  selected = c("Adipocytes",
-    #                                                               "Basal",
-    #                                                               "Endothelial",
-    #                                                               "Luminal Differentiated",
-    #                                                               "Luminal Progenitors",
-    #                                                               "Stromal"))
-    #                               ),
-    #                        column(2,
-    #                               h4("Stage"),
-    #                               checkboxGroupInput("stage", "",
-    #                                                  choices = list(
-    #                                                      "Nulliparous",
-    #                                                      "Gestation D5.5",
-    #                                                      "Gestation D9.5",
-    #                                                      "Gestation D14.5",
-    #                                                      "Lactation D2",
-    #                                                      "Laction D5",
-    #                                                      "Lactation D10",
-    #                                                      "Lactation D15",
-    #                                                      "Involution D1",
-    #                                                      "Involution D6",
-    #                                                      "Involution D14"
-    #                                                  ),
-    #                                                  selected = c("Nulliparous",
-    #                                                               "Gestation D5.5",
-    #                                                               "Gestation D9.5",
-    #                                                               "Gestation D14.5",
-    #                                                               "Lactation D2",
-    #                                                               "Laction D5",
-    #                                                               "Lactation D10",
-    #                                                               "Lactation D15",
-    #                                                               "Involution D1",
-    #                                                               "Involution D6",
-    #                                                               "Involution D14"))),
-    #                        column(2,
-    #                               h3("Genes"),
-    #                               textAreaInput("genes", "one per row; leave empty for all genes passing selected filters"),
-    #                               hr(),
-    #                               downloadButton("download_data", "Download data")
-    #                    ),
-    #                    fluidRow(
-    #                        column(6,
-    #                           includeHTML("functions/data_explanation.html"))
-    #                        )
-    #                    ))
-                
-    #         )
-    #     )
-    # )
 )
