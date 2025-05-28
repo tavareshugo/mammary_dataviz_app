@@ -88,9 +88,9 @@ server <- function(input, output, session) {
     alias_text <- ""
     if (length(aliases) == 1) {
       alias_text <- paste0(", also known as ", aliases)
-    } else if (length(aliases) > 1 && length(aliases) <= 3) {
+    } else if (length(aliases) > 1 && length(aliases) <= 4) {
       alias_text <- paste0(", also known as ", paste(aliases, collapse = ", "))
-    } else if (length(aliases) > 3) {
+    } else if (length(aliases) > 4) {
       alias_text <- paste0(", also known as ",
                           paste(head(aliases, 3), collapse = ", "),
                           ", and ", length(aliases) - 3, " others")
@@ -148,6 +148,13 @@ server <- function(input, output, session) {
       theme(axis.text.x = element_text(angle = 45, hjust = 1))
   })
   
+  output$download_plot_data_ui <- renderUI({
+    req(target_gene$gene)
+    if (nrow(target_gene$gene) == 1) {
+      downloadButton("download_plot_data", "Download plot data")
+    }
+  })
+  
   output$download_plot_data <- downloadHandler(
     filename = function() {
       paste0("expression_", target_gene$gene$gene[1], ".xlsx")
@@ -200,7 +207,7 @@ server <- function(input, output, session) {
                x = 1, y = 2, colour = "cross") +
         scale_colour_manual(values = cross_colours, name = "Cross"),
       nrow = 1
-    ) + plot_annotation(title = "PCA on Hybrid Samples") & coord_equal()
+    ) & coord_equal()
   })
   
   output$download_pca_data <- downloadHandler(
