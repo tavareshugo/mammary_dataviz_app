@@ -57,16 +57,35 @@ sample_info <- sample_info |>
 
 # Prepare expression information -------------
 
-hybrid_expr <- hybrid |> 
-  assay("vst") |> 
-  as_tibble(rownames = "gene") |> 
-  pivot_longer(-gene, names_to = "sample", values_to = "expr")
+hybrid_expr <- map_dfr(
+  c("vst", "logcounts", "tpm"),
+  function(assay_name) {
+    hybrid |>
+      assay(assay_name) |>
+      as_tibble(rownames = "gene") |>
+      pivot_longer(-gene, names_to = "sample", values_to = "expr") |>
+      mutate(assay = assay_name)
+  }
+) |>
+  pivot_wider(names_from = "assay", values_from = "expr") |> 
+  mutate(log2tpm = log2(tpm + 1)) |> 
+  rename(log2counts = logcounts) |>
+  select(-tpm)
 
-zfp57_expr <- zfp57 |> 
-  assay("vst") |> 
-  as_tibble(rownames = "gene") |> 
-  pivot_longer(-gene, names_to = "sample", values_to = "expr")
-
+zfp57_expr <- map_dfr(
+  c("vst", "logcounts", "tpm"),
+  function(assay_name) {
+    zfp57 |>
+      assay(assay_name) |>
+      as_tibble(rownames = "gene") |>
+      pivot_longer(-gene, names_to = "sample", values_to = "expr") |>
+      mutate(assay = assay_name)
+  }
+) |>
+  pivot_wider(names_from = "assay", values_from = "expr") |> 
+  mutate(log2tpm = log2(tpm + 1)) |> 
+  rename(log2counts = logcounts) |>
+  select(-tpm)
 
 
 # Differential Expression -------------------------------------------------
