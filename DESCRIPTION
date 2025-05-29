@@ -1,0 +1,23 @@
+Title: Dynamic Allelic Expression Explorer
+Author: Hugo Tavares
+Maintainer: Hugo Tavares <hm533@cam.ac.uk>
+Type: Shiny
+Version: 0.1.0
+Description: Shiny app for visualising allelic expression across the mouse mammary gland developmental cycle.
+License: MIT
+Encoding: UTF-8
+LazyData: true
+Depends: R (>= 4.1.0)
+Imports:
+    shiny,
+    shinyjs,
+    shinycssloaders,
+    duckplyr,
+    stringr,
+    ggplot2,
+    patchwork,
+    writexl,
+    ggfortify,
+    markdown,
+    RColorBrewer,
+    tibble

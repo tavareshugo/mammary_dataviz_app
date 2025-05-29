@@ -5,6 +5,7 @@ library(ggplot2)
 library(patchwork)
 library(writexl)
 library(ggfortify)
+library(markdown)
 theme_set(theme_minimal(base_size = 16))
 
 # colouring for plots
