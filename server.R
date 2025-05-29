@@ -42,7 +42,7 @@ server <- function(input, output, session) {
   
   observeEvent(input$plot, {
     target_gene$gene <- annot |> 
-      filter(gene == toupper(input$gene) | toupper(name) == toupper(input$gene)) |> 
+      filter(gene == toupper(str_trim(input$gene)) | toupper(name) == toupper(str_trim(input$gene))) |> 
       distinct(gene)
   })
   
@@ -108,18 +108,19 @@ server <- function(input, output, session) {
   
   # expression in hybrid data
   output$imprint_expr <- renderPlot({
+    gene <- isolate(target_gene$gene)
     if (is.null(target_gene$gene) || nrow(target_gene$gene) != 1) return(NULL)
 
     target_gene$gene |> 
       left_join(hybrid_expr) |> 
       left_join(sample_info, by = "sample") |> 
       mutate(stage = factor(stage, levels = names(stage_colours))) |>
-      ggplot(aes(stage, expr, colour = cell_type)) +
+      ggplot(aes(stage, .data[[input$expr_type]], colour = cell_type)) +
       ggbeeswarm::geom_quasirandom(dodge.width = 0.5, size = 2, groupOnX = TRUE) +
       geom_line(stat = "summary", fun = "median", aes(group = 1),
                 size = 1) +
       facet_grid(~ cell_type) +
-      labs(title = "Expression", 
+      labs(title = paste0("Expression", " (", input$expr_type, ")"), 
            colour = "Cell",
            x = "", y = "Normalised Expression") +
       scale_colour_manual(values = cell_colours) +
@@ -190,6 +191,17 @@ server <- function(input, output, session) {
       })
     }
   )
+  
+  observeEvent(input$show_norm_note, {
+    showModal(modalDialog(
+      title = "Normalisation Methods",
+      tagList(
+        includeMarkdown("www/normalisation_note.md")
+      ),
+      easyClose = TRUE,
+      footer = NULL
+    ))
+  })
   
   # PCA panel ----
   output$hybrid_pca <- renderPlot({

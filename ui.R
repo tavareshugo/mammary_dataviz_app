@@ -9,15 +9,15 @@
 
 ui <- navbarPage(
     "Mammary ASE Explorer", 
-    # https://stackoverflow.com/a/56771353
+    # allow for enter key to trigger plot button
     header = tags$head(
-        tags$script(
-            "$(document).on('shiny:inputchanged', function(event) {
-          if (event.name != 'changed') {
-            Shiny.setInputValue('changed', event.name);
+      tags$script(HTML(
+        "$(document).on('keypress', function(e) {
+          if (e.which == 13 && $('#gene').is(':focus')) {
+            $('#plot').click();
           }
         });"
-        )
+      ))
     ),
     tabPanel(
         "🏠 Home",
@@ -52,17 +52,28 @@ ui <- navbarPage(
                 column(2, 
                        textInput("gene",
                                  "Gene name or Ensembl ID:"),
-                       actionButton("plot", "Plot")
+                       actionButton("plot", "Plot"),
+                       br(), br(),
+                       radioButtons(
+                         inputId = "expr_type",
+                         label = "Expression scale:",
+                         choices = c("VST" = "vst",
+                                     "Log2 normalised counts" = "log2counts",
+                                     "Log2 TPM" = "log2tpm"),
+                         selected = "vst"
+                       ),
+                       actionLink("show_norm_note", "📘 Learn more about normalisation methods")
                 ),
                 column(9, 
                       #  downloadButton("download_plot_data", "Download plot data"),
                        shinycssloaders::withSpinner(uiOutput("plotted_gene"),
                                                     type = 1),
                        br(),
-                       uiOutput("download_plot_data_ui"),
+                       shinycssloaders::withSpinner(uiOutput("download_plot_data_ui"), 
+                                                    type = 0),
                        br(),
                        shinycssloaders::withSpinner(plotOutput("imprint_expr"),
-                                                    type = 0),
+                                                    type = 1),
                        shinycssloaders::withSpinner(plotOutput("imprint_isolde"),
                                                     type = 0)
                 )
