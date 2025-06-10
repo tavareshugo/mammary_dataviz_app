@@ -1,14 +1,9 @@
 data/gene_annotation.parquet
-data/hybrid_isoform_isolde.parquet
-data/hybrid_isoform_normalised_expression.parquet
 data/hybrid_isolde.parquet
 data/hybrid_normalised_expression.parquet
-data/isoform_annotation.parquet
 data/sample_info.parquet
-data/zfp57_differential_expression.parquet
-data/zfp57_normalised_expression.parquet
 data/hybrid_pca.rds
-data/zfp57_pca.rds
-functions
+www
 server.R
 ui.R
+DESCRIPTION
