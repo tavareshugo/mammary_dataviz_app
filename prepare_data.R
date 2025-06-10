@@ -42,13 +42,14 @@ sample_info <- sample_info |>
          stage = case_when(stage == "Gest 9.5" ~ "gestation d9.5",
                            stage == "Lac 2" ~ "lactation d2",
                            TRUE ~ stage)) |> 
+  mutate(stage = str_replace(stage, "gestation", "pregnancy")) |>
   mutate(cell_type = str_to_title(cell_type), 
          stage = str_to_title(stage),
          cross = str_to_upper(cross), 
          genotype = str_to_upper(genotype)) |> 
   mutate(stage = factor(stage, 
-                        levels = c("Nulliparous", "Gestation D5.5", 
-                                   "Gestation D9.5", "Gestation D14.5", 
+                        levels = c("Nulliparous", "Pregnancy D5.5", 
+                                   "Pregnancy D9.5", "Pregnancy D14.5", 
                                    "Lactation D2", "Lactation D5",
                                    "Lactation D10", "Lactation D15", 
                                    "Involution D1", "Involution D6", 
@@ -100,11 +101,12 @@ diffexp <- diffexp |>
                            timepoint == "t2" ~ "gestation d9.5",
                            timepoint == "t4" ~ "lactation d2",
                            TRUE ~ NA_character_)) |> 
+    mutate(stage = str_replace(stage, "gestation", "pregnancy")) |>
     mutate(cell_type = str_to_title(cell_type), 
            stage = str_to_title(stage)) |> 
     mutate(stage = factor(stage, 
-                          levels = c("Nulliparous", "Gestation D5.5", 
-                                     "Gestation D9.5", "Gestation D14.5", 
+                          levels = c("Nulliparous", "Pregnancy D5.5", 
+                                     "Pregnancy D9.5", "Pregnancy D14.5", 
                                      "Lactation D2", "Lactation D5",
                                      "Lactation D10", "Lactation D15", 
                                      "Involution D1", "Involution D6", 
@@ -125,11 +127,12 @@ isolde <- isolde |>
   inner_join(hybrid |> colData() |> as_tibble(rownames = "sample") |>
                distinct(cell_type, timepoint, stage),
              by = c("cell_type", "timepoint")) |> 
+  mutate(stage = str_replace(stage, "gestation", "pregnancy")) |>
   mutate(cell_type = str_to_title(cell_type), 
          stage = str_to_title(stage)) |> 
   mutate(stage = factor(stage, 
-                        levels = c("Nulliparous", "Gestation D5.5", 
-                                   "Gestation D9.5", "Gestation D14.5", 
+                        levels = c("Nulliparous", "Pregnancy D5.5", 
+                                   "Pregnancy D9.5", "Pregnancy D14.5", 
                                    "Lactation D2", "Lactation D5",
                                    "Lactation D10", "Lactation D15", 
                                    "Involution D1", "Involution D6", 
@@ -215,11 +218,12 @@ isolde_isoform <- isolde_isoform |>
   inner_join(isoform |> colData() |> as_tibble(rownames = "sample") |>
                distinct(cell_type, timepoint, stage),
              by = c("cell_type", "timepoint")) |> 
+  mutate(stage = str_replace(stage, "gestation", "pregnancy")) |>
   mutate(cell_type = str_to_title(cell_type), 
          stage = str_to_title(stage)) |> 
   mutate(stage = factor(stage, 
-                        levels = c("Nulliparous", "Gestation D5.5", 
-                                   "Gestation D9.5", "Gestation D14.5", 
+                        levels = c("Nulliparous", "Pregnancy D5.5", 
+                                   "Pregnancy D9.5", "Pregnancy D14.5", 
                                    "Lactation D2", "Lactation D5",
                                    "Lactation D10", "Lactation D15", 
                                    "Involution D1", "Involution D6", 

@@ -10,9 +10,9 @@ theme_set(theme_minimal(base_size = 16))
 
 # colouring for plots
 stage_colours <- c("Nulliparous" = "grey",
-                   "Gestation D5.5" = "#c6dbef",
-                   "Gestation D9.5" = "#6baed6",
-                   "Gestation D14.5" = "#08519c",
+                   "Pregnancy D5.5" = "#c6dbef",
+                   "Pregnancy D9.5" = "#6baed6",
+                   "Pregnancy D14.5" = "#08519c",
                    "Lactation D2" = "#bae4b3",
                    "Lactation D5" = "#74c476",
                    "Lactation D10" = "#31a354",
@@ -30,7 +30,10 @@ cross_colours <- c("BC" = "black", "CB" = "brown")
 hybrid_expr <- read_parquet_duckdb("data/hybrid_normalised_expression.parquet")
 isolde <- read_parquet_duckdb("data/hybrid_isolde.parquet")
 annot <- read_parquet_duckdb("data/gene_annotation.parquet")
-sample_info <- read_parquet_duckdb("data/sample_info.parquet")
+sample_info <- read_parquet_duckdb("data/sample_info.parquet") |> 
+  mutate(stage = factor(stage, levels = names(stage_colours)),
+         cell_type = factor(cell_type, levels = names(cell_colours)),
+         cross = factor(cross, levels = names(cross_colours)))
 hybrid_pca <- readRDS("data/hybrid_pca.rds")
 
 
