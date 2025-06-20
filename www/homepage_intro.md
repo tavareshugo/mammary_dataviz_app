@@ -10,5 +10,8 @@ RNA was extracted from flow-sorted cell populations and sequenced using Illumina
 Expression quantification was performed using Salmon, and allele-specific expression was assessed using a custom pipeline incorporating CAST/EiJ-specific genome annotations and the ISoLDE package. 
 Normalisation and differential expression analysis was done using `DESeq2`, and PCA was applied to variance-stabilised counts.
 
-* The source code for this app is available from <a href="https://github.com/tavareshugo/mammary_dataviz_app" target="_blank">github.com/tavareshugo/mammary_dataviz_app</a>.
-* The source code used for the data analysis is available from <a href="https://github.com/tavareshugo/publication_Hanin2025_MammaryGlandAllelicExpression" target="_blank">github.com/tavareshugo/publication_Hanin2025_MammaryGlandAllelicExpression</a>.
+## Citation
+
+If you use data or outputs from this app in your research, please cite our accompanying manuscript:
+
+> Hanin, G., Costello, K. R., Tavares, H., AlSulaiti, B., Patel, S., Edwards, C. A., & Ferguson-Smith, A. C. (2024). Dynamic allelic expression in mouse mammary gland across the adult developmental cycle. bioRxiv. <a href="https://doi.org/10.1101/2024.09.02.610775" target="_blank">https://doi.org/10.1101/2024.09.02.610775</a>

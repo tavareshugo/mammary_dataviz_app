@@ -22,6 +22,10 @@ ui <- navbarPage(
     tabPanel(
         "🏠 Home",
         fluidPage(
+          div(
+            style = "background-color:#f8f9fa; padding:5px; text-align:center; font-size:small; border-bottom:1px solid #ddd;",
+            HTML("If you use data or outputs from this app, please cite: Hanin, G. et al. (2024). <i>Dynamic allelic expression in mouse mammary gland across the adult developmental cycle</i>, <i>bioRxiv</i>, <a href='https://doi.org/10.1101/2024.09.02.610775' target='_blank'>https://doi.org/10.1101/2024.09.02.610775</a>")
+            ),
             fluidRow(
                 # add a title
                 column(12, 
@@ -47,6 +51,11 @@ ui <- navbarPage(
     tabPanel(
         "📈 Expression Plots",
         fluidPage(
+          div(
+            style = "background-color:#f8f9fa; padding:5px; text-align:center; font-size:small; border-bottom:1px solid #ddd;",
+            HTML("If you use data or outputs from this app, please cite: Hanin, G. et al. (2024). <i>Dynamic allelic expression in mouse mammary gland across the adult developmental cycle</i>, <i>bioRxiv</i>, <a href='https://doi.org/10.1101/2024.09.02.610775' target='_blank'>https://doi.org/10.1101/2024.09.02.610775</a>")
+            ),
+          br(),
             fluidRow(
                 shinyjs::useShinyjs(),
                 column(2, 
@@ -78,6 +87,10 @@ ui <- navbarPage(
                                                     type = 0)
                 )
             )
-        )
+        ),
+        tags$footer(
+  style = "position:fixed; bottom:0; width:100%; background-color:#f8f9fa; padding:5px; text-align:center; font-size:small; border-top:1px solid #ddd;",
+  HTML("Please cite: Hanin, G., Costello, K. R., Tavares, H., AlSulaiti, B., Patel, S., Edwards, C. A., & Ferguson-Smith, A. C. (2024). <i>Dynamic allelic expression in mouse mammary gland across the adult developmental cycle</i>. <i>bioRxiv</i>. <a href='https://doi.org/10.1101/2024.09.02.610775' target='_blank'>https://doi.org/10.1101/2024.09.02.610775</a>")
+)
     )
 )
